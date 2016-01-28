@@ -34,7 +34,7 @@ Basic features:
 
             //Subscribe subject
             let subject = "gossip"
-            pubsub.subscribe()
+            pubsub.subscribe(subject)
 
             let time = dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC)))
             dispatch_after(time, dispatch_get_main_queue()) { [weak self] in
