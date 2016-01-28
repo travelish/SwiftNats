@@ -235,25 +235,31 @@ public class Nats: NSObject, NSStreamDelegate {
 	 *
 	 */
 	private func authorize(outStream: NSOutputStream, _ inStream: NSInputStream) {
-		guard let user = self.url?.user, let password = self.url?.password, let srv = self.server else { return }
-
-		if !srv.authRequired {
-			didConnect()
-			return
-		}
-
-		let config = [
-			"verbose": self.verbose,
-			"pedantic": self.pedantic,
-			"ssl_required": srv.sslRequired,
-			"name": self.name,
-			"lang": self.lang,
-			"version": self.version,
-			"user": user,
-			"pass": password
-		]
-
 		do {
+			guard let srv = self.server else {
+				throw NSError(domain: NSURLErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid Server"])
+			}
+
+			if !srv.authRequired {
+				didConnect()
+				return
+			}
+
+			guard let user = self.url?.user, password = self.url?.password else {
+				throw NSError(domain: NSURLErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: "User/Password Required"])
+			}
+
+			let config = [
+				"verbose": self.verbose,
+				"pedantic": self.pedantic,
+				"ssl_required": srv.sslRequired,
+				"name": self.name,
+				"lang": self.lang,
+				"version": self.version,
+				"user": user,
+				"pass": password
+			]
+
 			let configData = try NSJSONSerialization.dataWithJSONObject(config, options: [])
 			if let configString = configData.toString() {
 				if let data = "\(Proto.CONNECT.rawValue) \(configString)\r\n".dataUsingEncoding(NSUTF8StringEncoding) {
@@ -262,7 +268,7 @@ public class Nats: NSObject, NSStreamDelegate {
 					if let info = inStream.readStreamLoop() { // <- receive
 						if info.hasPrefix(Proto.ERR.rawValue) {
 							let err = info.removePrefix(Proto.ERR.rawValue, 1)
-							didDisconnect(NSError(domain: NSURLErrorDomain, code: 404, userInfo: [NSLocalizedDescriptionKey: err]))
+							didDisconnect(NSError(domain: NSURLErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: err]))
 						} else {
 							didConnect()
 						}
