@@ -35,7 +35,8 @@ Basic features:
             //Subscribe subject
             let subject = "gossip"
             pubsub.subscribe(subject)
-
+            
+            //Publish
             let time = dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC)))
             dispatch_after(time, dispatch_get_main_queue()) { [weak self] in
                 guard let s = self else { return }
@@ -58,10 +59,17 @@ Delegate
     }
 
 
-
 Why use strong reference a.k.a property? Because of NSStreamDelegate is weak & unsafe, it does not retain the object:
 
     unowned(unsafe) var delegate: NSStreamDelegate?
+
+
+## To do
+
+* Synchronous Messaging.
+* Request Reply.
+* Queueing.
+* Testing.
 
 
 The MIT License (MIT)
