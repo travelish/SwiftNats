@@ -6,7 +6,7 @@ Swift client for NATS, the cloud native messaging system. https://nats.io
 
     platform :ios, '8.0'
     use_frameworks!
-    source 'https://github.com/travelish/Specs.git'
+
     pod 'SwiftNats', '~> 0.1'
 
 ## Usage
