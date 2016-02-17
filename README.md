@@ -2,7 +2,7 @@
 Swift client for NATS, the cloud native messaging system. https://nats.io
 
 ## Install
-#### Cocoapods
+#### CocoaPods
 
     platform :ios, '8.0'
     use_frameworks!
