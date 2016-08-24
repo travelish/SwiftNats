@@ -17,7 +17,7 @@ public struct NatsSubscription {
 	public let id: String
 	public let subject: String
 	public let queueGroup: String
-	private(set) var count: UInt
+	fileprivate(set) var count: UInt
 
 	func sub() -> String {
 		let group: () -> String = {
@@ -30,7 +30,7 @@ public struct NatsSubscription {
 		return "\(Proto.SUB.rawValue) \(subject) \(group())\(id)\r\n"
 	}
 
-	func unsub(max: UInt32) -> String {
+	func unsub(_ max: UInt32) -> String {
 		let wait: () -> String = {
 			if max > 0 {
 				return " \(max)"

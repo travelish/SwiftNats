@@ -1,5 +1,7 @@
 # SwiftNats
-Swift client for NATS, the cloud native messaging system. https://nats.io
+Swift 3.0 client for NATS, the cloud native messaging system. https://nats.io
+
+For Swift 2 version, please check branch Swift2.3
 
 ## Install
 #### CocoaPods
@@ -7,7 +9,7 @@ Swift client for NATS, the cloud native messaging system. https://nats.io
     platform :ios, '8.0'
     use_frameworks!
 
-    pod 'SwiftNats', '~> 0.1'
+    pod 'SwiftNats', '~> 3.0.0.alpha.1'
 
 ## Usage
 
@@ -35,7 +37,7 @@ Basic features:
             //Subscribe subject
             let subject = "gossip"
             pubsub.subscribe(subject)
-            
+
             //Publish
             let time = dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC)))
             dispatch_after(time, dispatch_get_main_queue()) { [weak self] in

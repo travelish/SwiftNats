@@ -9,36 +9,36 @@
 
 import Foundation
 
-public class Nats: NSObject, NSStreamDelegate {
-	public var queue = dispatch_get_main_queue()
-	public weak var delegate: NatsDelegate?
+open class Nats: NSObject, StreamDelegate {
+	open var queue = DispatchQueue.main
+	open weak var delegate: NatsDelegate?
 
-	let version = "0.0.1"
+	let version = "3.0.0-alpha.1"
 	let lang = "swift"
 	let name = "SwiftNats"
 	let MaxFrameSize: Int = 32
 
-	private var server: Server?
-	private var subscriptions = [NatsSubscription]()
+	fileprivate var server: Server?
+	fileprivate var subscriptions = [NatsSubscription]()
 
-	private var id: String?
-	private var outputStream: NSOutputStream?
-	private var inputStream: NSInputStream?
-	private var writeQueue = NSOperationQueue()
-	private var connected: Bool = false
-	private var counter: UInt32 = 0
+	fileprivate var id: String?
+	fileprivate var outputStream: OutputStream?
+	fileprivate var inputStream: InputStream?
+	fileprivate var writeQueue = OperationQueue()
+	fileprivate var connected: Bool = false
+	fileprivate var counter: UInt32 = 0
 
-	private var url: NSURL!
-	private var verbose: Bool = true
-	private var pedantic: Bool = false
+	fileprivate var url: URL!
+	fileprivate var verbose: Bool = true
+	fileprivate var pedantic: Bool = false
 
-	private var isRunLoop: Bool = false
+	fileprivate var isRunLoop: Bool = false
 
-	public var connectionId: String? {
+	open var connectionId: String? {
 		return id
 	}
 
-	public var isConnected: Bool {
+	open var isConnected: Bool {
 		return connected
 	}
 
@@ -49,15 +49,15 @@ public class Nats: NSObject, NSStreamDelegate {
 	 */
 
 	public init(url: String, verbose: Bool = true, pedantic: Bool = false) {
-		self.url = NSURL(string: url)!
+		self.url = URL(string: url)!
 		self.verbose = verbose
 		self.pedantic = pedantic
 
 		writeQueue.maxConcurrentOperationCount = 1
 	}
 
-	public func option(url: String, verbose: Bool = true, pedantic: Bool = false) {
-		self.url = NSURL(string: url)!
+	open func option(_ url: String, verbose: Bool = true, pedantic: Bool = false) {
+		self.url = URL(string: url)!
 		self.verbose = verbose
 		self.pedantic = pedantic
 	}
@@ -67,19 +67,19 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * make connection
 	 *
 	 */
-	public func connect() {
+	open func connect() {
 		self.open()
 
-		guard let newReadStream = inputStream, newWriteStream = outputStream else { return }
+		guard let newReadStream = inputStream, let newWriteStream = outputStream else { return }
 		guard isConnected else { return }
 
 		for stream in [newReadStream, newWriteStream] {
 			stream.delegate = self
-			stream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+			stream.schedule(in: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
 		}
 
 		// NSRunLoop
-		NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate.distantFuture() as NSDate)
+		RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode, before: Date.distantFuture as Date)
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * make connection
 	 *
 	 */
-	public func reconnect(url: String, verbose: Bool = true, pedantic: Bool = false) {
+	open func reconnect(_ url: String, verbose: Bool = true, pedantic: Bool = false) {
 		self.option(url, verbose: verbose, pedantic: pedantic)
 		guard !isConnected else {
 			didDisconnect(nil)
@@ -103,7 +103,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * close connection
 	 *
 	 */
-	public func disconnect() {
+	open func disconnect() {
 		didDisconnect(nil)
 	}
 
@@ -112,15 +112,13 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * subscribe to subject
 	 *
 	 */
-	public func subscribe(subject: String, queueGroup: String = "") -> NatsSubscription? {
-		guard subscriptions.filter({ $0.subject == subject }).count == 0 else { return nil }
+	open func subscribe(_ subject: String, queueGroup: String = "") -> Void {
+		guard subscriptions.filter({ $0.subject == subject }).count == 0 else { return }
 
 		let sub = NatsSubscription(id: String.randomize("SUB_", length: 10), subject: subject, queueGroup: queueGroup, count: 0)
 
 		subscriptions.append(sub)
 		sendText(sub.sub())
-
-		return sub
 	}
 
 	/**
@@ -128,7 +126,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * unsubscribe from subject
 	 *
 	 */
-	public func unsubscribe(subject: String, max: UInt32 = 0) {
+	open func unsubscribe(_ subject: String, max: UInt32 = 0) {
 		guard let sub = subscriptions.filter({ $0.subject == subject }).first else { return }
 
 		subscriptions = subscriptions.filter({ $0.id != sub.id })
@@ -140,10 +138,10 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * publish to subject
 	 *
 	 */
-	public func publish(subject: String, payload: String) {
+	open func publish(_ subject: String, payload: String) {
 		let pub: () -> String = {
-			if let data = payload.dataUsingEncoding(NSUTF8StringEncoding) {
-				return "\(Proto.PUB.rawValue) \(subject) \(data.length)\r\n\(payload)\r\n"
+			if let data = payload.data(using: String.Encoding.utf8) {
+				return "\(Proto.PUB.rawValue) \(subject) \(data.count)\r\n\(payload)\r\n"
 			}
 			return ""
 		}
@@ -155,10 +153,10 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * reply to id in subject
 	 *
 	 */
-	public func reply(subject: String, replyto: String, payload: String) {
+	open func reply(_ subject: String, replyto: String, payload: String) {
 		let response: () -> String = {
-			if let data = payload.dataUsingEncoding(NSUTF8StringEncoding) {
-				return "\(Proto.PUB.rawValue) \(subject) \(replyto) \(data.length)\r\n\(payload)\r\n"
+			if let data = payload.data(using: String.Encoding.utf8) {
+				return "\(Proto.PUB.rawValue) \(subject) \(replyto) \(data.count)\r\n\(payload)\r\n"
 			}
 			return ""
 		}
@@ -166,21 +164,21 @@ public class Nats: NSObject, NSStreamDelegate {
 	}
 
 	// NSStreamDelegate
-	public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
+	open func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
 		switch aStream {
 
 		case inputStream!:
 			switch eventCode {
-			case [.HasBytesAvailable]:
+			case [.hasBytesAvailable]:
 				if let string = inputStream?.readStream()?.toString() {
 					dispatchInputStream(string)
 				}
 				break
-			case [.ErrorOccurred]:
-				didDisconnect(inputStream?.streamError)
+			case [.errorOccurred]:
+				didDisconnect(inputStream?.streamError as NSError?)
 				break
-			case [.EndEncountered]:
-				didDisconnect(inputStream?.streamError)
+			case [.endEncountered]:
+				didDisconnect(inputStream?.streamError as NSError?)
 				break
 			default:
 				break
@@ -203,14 +201,14 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * blocking, read & write stream in loop
 	 *
 	 */
-	private func open() {
+	fileprivate func open() {
 		guard !isConnected else { return }
 		guard let host = url.host, let port = url.port else { return }
 
 		var readStream: Unmanaged<CFReadStream>?
 		var writeStream: Unmanaged<CFWriteStream>?
 
-		CFStreamCreatePairWithSocketToHost(nil, host, UInt32(port.unsignedIntValue), &readStream, &writeStream) // -> send
+		CFStreamCreatePairWithSocketToHost(nil, host as CFString!, UInt32(port), &readStream, &writeStream) // -> send
 		inputStream = readStream!.takeRetainedValue()
 		outputStream = writeStream!.takeRetainedValue()
 
@@ -221,7 +219,7 @@ public class Nats: NSObject, NSStreamDelegate {
 
 		if let info = inStream.readStreamLoop() { // <- receive
 			if info.hasPrefix(Proto.INFO.rawValue) {
-				if let config = info.flattenedMessage().removePrefix(Proto.INFO.rawValue, 1).convertToDictionary() {
+                if let config = info.flattenedMessage().removePrefix(Proto.INFO.rawValue).convertToDictionary() {
 					self.server = Server(data: config)
 					self.authorize(outStream, inStream)
 				}
@@ -234,7 +232,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * blocking, read & write stream in loop
 	 *
 	 */
-	private func authorize(outStream: NSOutputStream, _ inStream: NSInputStream) {
+	fileprivate func authorize(_ outStream: OutputStream, _ inStream: InputStream) {
 		do {
 			guard let srv = self.server else {
 				throw NSError(domain: NSURLErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid Server"])
@@ -245,7 +243,7 @@ public class Nats: NSObject, NSStreamDelegate {
 				return
 			}
 
-			guard let user = self.url?.user, password = self.url?.password else {
+			guard let user = self.url?.user, let password = self.url?.password else {
 				throw NSError(domain: NSURLErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: "User/Password Required"])
 			}
 
@@ -258,16 +256,16 @@ public class Nats: NSObject, NSStreamDelegate {
 				"version": self.version,
 				"user": user,
 				"pass": password
-			]
+			] as [String : Any]
 
-			let configData = try NSJSONSerialization.dataWithJSONObject(config, options: [])
+			let configData = try JSONSerialization.data(withJSONObject: config, options: [])
 			if let configString = configData.toString() {
-				if let data = "\(Proto.CONNECT.rawValue) \(configString)\r\n".dataUsingEncoding(NSUTF8StringEncoding) {
+				if let data = "\(Proto.CONNECT.rawValue) \(configString)\r\n".data(using: String.Encoding.utf8) {
 
 					outStream.writeStreamLoop(data) // -> send
 					if let info = inStream.readStreamLoop() { // <- receive
 						if info.hasPrefix(Proto.ERR.rawValue) {
-							let err = info.removePrefix(Proto.ERR.rawValue, 1)
+							let err = info.removePrefix(Proto.ERR.rawValue)
 							didDisconnect(NSError(domain: NSURLErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: err]))
 						} else {
 							didConnect()
@@ -287,12 +285,12 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * non blocking
 	 *
 	 */
-	private func didConnect() {
+	fileprivate func didConnect() {
 		self.id = String.randomize("CONN_", length: 10)
 		self.connected = true
-		dispatch_async(queue) { [weak self] in
+		queue.async { [weak self] in
 			guard let s = self else { return }
-			s.delegate?.natsDidConnect(s)
+            s.delegate?.natsDidConnect(nats:s)
 		}
 	}
 
@@ -303,19 +301,19 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * non blocking
 	 *
 	 */
-	private func didDisconnect(err: NSError?) {
+	fileprivate func didDisconnect(_ err: NSError?) {
 		self.connected = false
-		dispatch_async(queue) { [weak self] in
+		queue.async { [weak self] in
 			guard let s = self else { return }
-			guard let newReadStream = s.inputStream, newWriteStream = s.outputStream else { return }
+			guard let newReadStream = s.inputStream, let newWriteStream = s.outputStream else { return }
 
 			for stream in [newReadStream, newWriteStream] {
 				stream.delegate = nil
-				stream.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+				stream.remove(from: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
 				stream.close()
 			}
 
-			s.delegate?.natsDidDisconnect(s, error: err)
+			s.delegate?.natsDidDisconnect(nats:s, error: err)
 		}
 	}
 
@@ -324,10 +322,10 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * write data to output stream
 	 *
 	 */
-	private func sendData(data: NSData) {
+	fileprivate func sendData(_ data: Data) {
 		guard isConnected else { return }
 
-		writeQueue.addOperationWithBlock { [weak self] in
+		writeQueue.addOperation { [weak self] in
 			guard let s = self else { return }
 			guard let stream = s.outputStream else { return }
 
@@ -340,8 +338,8 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * write string to output stream
 	 *
 	 */
-	private func sendText(text: String) {
-		if let data = text.dataUsingEncoding(NSUTF8StringEncoding) {
+	fileprivate func sendText(_ text: String) {
+		if let data = text.data(using: String.Encoding.utf8) {
 			sendData(data)
 		}
 	}
@@ -351,13 +349,13 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * routing received message from NSStreamDelegate
 	 *
 	 */
-	private func dispatchInputStream(msg: String) {
+	fileprivate func dispatchInputStream(_ msg: String) {
 		if msg.hasPrefix(Proto.PING.rawValue) {
 			processPing()
 		} else if msg.hasPrefix(Proto.OK.rawValue) {
 			processOk(msg)
 		} else if msg.hasPrefix(Proto.ERR.rawValue) {
-			processErr(msg.removePrefix(Proto.ERR.rawValue, 1))
+			processErr(msg.removePrefix(Proto.ERR.rawValue))
 		} else if msg.hasPrefix(Proto.MSG.rawValue) {
 			processMessage(msg)
 		}
@@ -368,12 +366,15 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * processMessage
 	 *
 	 */
-	private func processMessage(msg: String) {
-		let components = msg.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()).filter { !$0.isEmpty }
+	fileprivate func processMessage(_ msg: String) {
+		let components = msg.components(separatedBy: CharacterSet.newlines).filter { !$0.isEmpty }
 
 		guard components.count > 0 else { return }
 
-		let header = components[0].removePrefix(Proto.MSG.rawValue, 1).componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).filter { !$0.isEmpty }
+		let header = components[0]
+            .removePrefix(Proto.MSG.rawValue)
+            .components(separatedBy: CharacterSet.whitespaces)
+            .filter { !$0.isEmpty }
 
 		let subject = header[0]
 		// let sid = UInt32(header[1])
@@ -402,9 +403,9 @@ public class Nats: NSObject, NSStreamDelegate {
 
 		let message = NatsMessage(subject: sub!.subject, count: sub!.count, reply: reply, payload: payload)
 
-		dispatch_async(queue) { [weak self] in
+		queue.async { [weak self] in
 			guard let s = self else { return }
-			s.delegate?.natsDidReceiveMessage(s, msg: message)
+			s.delegate?.natsDidReceiveMessage(nats:s, msg: message)
 		}
 	}
 
@@ -413,7 +414,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * +OK
 	 *
 	 */
-	private func processOk(msg: String) {
+	fileprivate func processOk(_ msg: String) {
 		print("processOk \(msg)")
 	}
 
@@ -422,7 +423,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * -ERR
 	 *
 	 */
-	private func processErr(msg: String) {
+	fileprivate func processErr(_ msg: String) {
 		print("processErr \(msg)")
 	}
 
@@ -432,7 +433,7 @@ public class Nats: NSObject, NSStreamDelegate {
 	 * PONG keep-alive response
 	 *
 	 */
-	private func processPing() {
+	fileprivate func processPing() {
 		sendText(Proto.PONG.rawValue)
 	}
 }

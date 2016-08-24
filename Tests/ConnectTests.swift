@@ -14,7 +14,7 @@ class ConnectTests: XCTestCase {
 	var nats: Nats!
 	let validServer = "nats://admin:admin@localhost:4222"
 	let wrongServerLocation = "nats://localhost:4221"
-	let wrongServerCredential = "nats://root:root@localhost:4222"
+	let wrongServerCredential = "nats://root:root@localhost:4212"
 
 	override func setUp() {
 		super.setUp()
@@ -70,7 +70,7 @@ class ConnectTests: XCTestCase {
 
 	func testPerformanceExample() {
 		// This is an example of a performance test case.
-		self.measureBlock {
+		self.measure {
 			// Put the code you want to measure the time of here.
 		}
 	}

@@ -10,7 +10,7 @@ import XCTest
 @testable import SwiftNats
 
 class SpyDelegate: NatsDelegate {
-	var msg: NatsMessage? = .None
+	var msg: NatsMessage? = .none
 	var expectation: XCTestExpectation?
 
 	func natsDidConnect(nats: Nats) { }
@@ -52,14 +52,14 @@ class DelegateTests: XCTestCase {
 		let subject = "vehicle"
 		testablenats.subscribe(subject)
 
-		let expectation = expectationWithDescription("SpyDelegate expectation")
+		let expectation = self.expectation(description: "SpyDelegate expectation")
 		spy.expectation = expectation
 
 		let delay = 2 * Double(NSEC_PER_SEC)
-		let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+		let time = DispatchTime.now() + Double(Int64(delay)) / Double(NSEC_PER_SEC)
 
 		// Test Publish
-		dispatch_after(time, dispatch_get_main_queue()) { [weak self] in
+		DispatchQueue.main.asyncAfter(deadline: time) { [weak self] in
 			guard let s = self else { return }
 			for index in 1...2 {
 				s.nats.publish(subject, payload: "\(index)")
@@ -67,7 +67,7 @@ class DelegateTests: XCTestCase {
 		}
 
 		// Test Subscribe
-		waitForExpectationsWithTimeout(10) { error in
+		waitForExpectations(timeout: 10) { error in
 			if let error = error {
 				XCTFail("waitForExpectationsWithTimeout errored: \(error)")
 			}
@@ -83,7 +83,7 @@ class DelegateTests: XCTestCase {
 
 	func testPerformanceExample() {
 		// This is an example of a performance test case.
-		self.measureBlock {
+		self.measure {
 		}
 	}
 }
