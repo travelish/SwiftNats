@@ -19,7 +19,7 @@ For Swift 3 version, please check branch Swift3.
 You can use [Carthage](https://github.com/Carthage/Carthage) to install `SwiftNats` by adding it to your `Cartfile`:
 
 ```
-github "travelish/SwiftNats" ~> 5.0.0.1
+github "travelish/SwiftNats" ~> 5.0.0
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `SwiftNats.framework` to the "Linked Frameworks and Libraries" section of your target, and have included them in your Carthage framework copying build phase.
