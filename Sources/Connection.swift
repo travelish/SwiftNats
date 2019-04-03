@@ -13,7 +13,7 @@ open class Nats: NSObject, StreamDelegate {
 	open var queue = DispatchQueue.main
 	open weak var delegate: NatsDelegate?
 
-	let version = "5.0.0-alpha.1"
+	let version = "5.0.0"
 	let lang = "swift"
 	let name = "SwiftNats"
 	let MaxFrameSize: Int = 32

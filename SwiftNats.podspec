@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
     s.name              = "SwiftNats"
-    s.version           = "5.0.0-alpha.1"
+    s.version           = "5.0.0"
     s.summary           = "A Swift client for the NATS messaging system."
     s.description       = <<-DESC
         Swift 3.0 client for NATS, the cloud native messaging system. https://nats.io
