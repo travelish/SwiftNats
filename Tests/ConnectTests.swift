@@ -12,7 +12,10 @@ import XCTest
 class ConnectTests: XCTestCase {
 
 	var nats: Nats!
+	
+	// Example: `./gnastd --user admin --pass admin`
 	let validServer = "nats://admin:admin@localhost:4222"
+	
 	let wrongServerLocation = "nats://localhost:4221"
 	let wrongServerCredential = "nats://root:root@localhost:4212"
 
