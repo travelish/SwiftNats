@@ -83,7 +83,7 @@ extension String
 	}
 
 	func removePrefix(_ prefix: String) -> String {
-        return self.substring(from: self.index(self.startIndex, offsetBy: prefix.characters.count))
+        return self.substring(from: self.index(self.startIndex, offsetBy: prefix.count))
 	}
 
 	func convertToDictionary() -> [String: AnyObject]? {
@@ -99,7 +99,7 @@ extension String
 
 	static func randomize(_ prefix: String = "", length: Int = 0) -> String {
 
-		let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".characters
+		let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 		let lettersLength = UInt32(letters.count)
 
 		let randomCharacters = (0..<length).map { i -> String in

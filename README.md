@@ -1,15 +1,28 @@
 # SwiftNats
-Swift 3.0 client for NATS, the cloud native messaging system. https://nats.io
 
-For Swift 2 version, please check branch Swift2.3
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) ![CocoaPods](https://img.shields.io/cocoapods/v/SwiftNats.svg) ![Platform](https://img.shields.io/badge/platforms-iOS%2012.2-F28D00.svg)
+
+Swift 5.0 client for NATS, the cloud native messaging system. https://nats.io
+
+For Swift 3 version, please check branch Swift3.
 
 ## Install
 #### CocoaPods
 
-    platform :ios, '8.0'
+    platform :ios, '12.2'
     use_frameworks!
 
-    pod 'SwiftNats', '~> 3.0.0.alpha.1'
+    pod 'SwiftNats', '~> 5.0.0.alpha.1'
+
+#### Carthage
+
+You can use [Carthage](https://github.com/Carthage/Carthage) to install `SwiftNats` by adding it to your `Cartfile`:
+
+```
+github "travelish/SwiftNats" ~> 5.0.0.alpha.1
+```
+
+If you use Carthage to build your dependencies, make sure you have added `SwiftNats.framework` to the "Linked Frameworks and Libraries" section of your target, and have included them in your Carthage framework copying build phase.
 
 ## Usage
 

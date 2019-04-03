@@ -21,7 +21,7 @@ public struct NatsSubscription {
 
 	func sub() -> String {
 		let group: () -> String = {
-			if self.queueGroup.characters.count > 0 {
+			if self.queueGroup.count > 0 {
 				return "\(self.queueGroup) "
 			}
 			return self.queueGroup
@@ -37,7 +37,7 @@ public struct NatsSubscription {
 			}
 			return ""
 		}
-		return "\(Proto.UNSUB.rawValue) \(id)\(wait)\r\n"
+		return "\(Proto.UNSUB.rawValue) \(id)\(String(describing: wait))\r\n"
 	}
 
 	mutating func counter() {
@@ -82,7 +82,13 @@ internal struct Server {
 		self.host = data["host"] as! String
 		self.port = data["port"] as! UInt
 		self.authRequired = data["auth_required"] as! Bool
-		self.sslRequired = data["ssl_required"] as! Bool
+		
+		if data["ssl_required"] != nil {
+			self.sslRequired = data["ssl_required"] as! Bool
+		} else {
+			self.sslRequired = false
+		}
+		
 		self.maxPayload = data["max_payload"] as! UInt
 	}
 }
