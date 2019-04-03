@@ -1,6 +1,6 @@
 # SwiftNats
 
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) ![CocoaPods](https://img.shields.io/cocoapods/v/SwiftyJSON.svg) ![Platform](https://img.shields.io/badge/platforms-iOS%2012.2%20%7C-F28D00.svg)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) ![CocoaPods](https://img.shields.io/cocoapods/v/SwiftNats.svg) ![Platform](https://img.shields.io/badge/platforms-iOS%2012.2%20%7C-F28D00.svg)
 
 Swift 5.0 client for NATS, the cloud native messaging system. https://nats.io
 
