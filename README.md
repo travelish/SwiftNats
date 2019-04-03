@@ -12,7 +12,7 @@ For Swift 3 version, please check branch Swift3.
     platform :ios, '12.2'
     use_frameworks!
 
-    pod 'SwiftNats', '~> 5.0.0.alpha.1'
+    pod 'SwiftNats', '~> 5.0.0'
 
 #### Carthage
 
