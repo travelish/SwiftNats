@@ -10,10 +10,12 @@ let package = Package(
     products: [
         .library(name: "SwiftNats", targets: ["SwiftNats"])
     ],
+    path: []
     targets: [
         .target(
             name: "SwiftNats",
-            exclude:["SwiftNats.h", "Info.plist"]
+            exclude:["SwiftNats.h", "Info.plist"],
+            path: "Sources"
         )
     ]
 )
