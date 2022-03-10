@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftNats",
     platforms: [
-        .iOS(.v12.2),
+        .iOS(.v12),
     ],
     products: [
         .library(name: "SwiftNats", targets: ["SwiftNats"])
