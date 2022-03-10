@@ -13,7 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "SwiftNats",
-            exclude:["SwiftNats.h", "Info.plist"],
-            path: "Sources")
+            path: "Sources",
+            exclude:["SwiftNats.h", "Info.plist"])
     ]
 )
