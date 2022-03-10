@@ -10,7 +10,6 @@ let package = Package(
     products: [
         .library(name: "SwiftNats", targets: ["SwiftNats"])
     ],
-    path: []
     targets: [
         .target(
             name: "SwiftNats",
