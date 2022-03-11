@@ -6,6 +6,8 @@
 //  Copyright © 2016 Travelish. All rights reserved.
 //
 
+import Foundation
+
 public protocol NatsDelegate: class {
 	func natsDidConnect(nats: Nats)
 	func natsDidDisconnect(nats: Nats, error: NSError?)
