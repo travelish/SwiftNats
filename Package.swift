@@ -1,0 +1,19 @@
+// swift-tools-version:5.3
+// https://developer.apple.com/documentation/swift_packages/package
+import PackageDescription
+
+let package = Package(
+    name: "SwiftNats",
+    platforms: [
+        .iOS(.v12),
+    ],
+    products: [
+        .library(name: "SwiftNats", targets: ["SwiftNats"])
+    ],
+    targets: [
+        .target(
+            name: "SwiftNats",
+            path: "Sources",
+            exclude:["SwiftNats.h", "Info.plist"])
+    ]
+)
